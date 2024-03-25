@@ -34,6 +34,15 @@ def remove_punctuation(df, features):
     # Add code here
 
     # Confirmation statement
+    for feature in features:
+        # Check if the feature exists in the DataFrame
+        if feature in df.columns:
+            # Convert the feature to string type
+            df[feature] = df[feature].astype(str)
+            # Replace punctuation
+            df[feature] = df[feature].str.replace('[^\w\s]', '', regex=True)
+    
+
     st.write('Punctuation was removed from {}'.format(features))
     return df
 
@@ -56,8 +65,15 @@ def word_count_encoder(df, feature, analyzer='word', ngram_range=(1, 1), stop_wo
     count_vect=None
     word_count_df=None
     # Create CountVectorizer object using analyzer, ngram_range, and stop_words
+    count_vect = CountVectorizer(analyzer=analyzer, ngram_range=ngram_range, stop_words=stop_words)
 
     # Add code here
+    word_count = count_vect.fit_transform(df[feature])
+    word_count_df = pd.DataFrame(word_count.toarray(), columns=count_vect.get_feature_names_out())
+    word_count_df = word_count_df.add_prefix('word_count_')
+    df = pd.concat([df, word_count_df], axis=1)
+
+
 
     # Store new features in st.session_state
     st.session_state['data'] = df
